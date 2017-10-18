@@ -1,33 +1,34 @@
 version: '1.0'
 services:
-  - name: db
-    type: postgres
-    version: 9.6
+  - name: mongo
+    type: mongodb
+    version: 3.4
     configuration: StandAlone
     ports:
-      - 5432
-    env:
-      POSTGRES_USER: redmine
-      POSTGRES_PASSWORD: null
+      - 27017
     remoteAccess: false
     deployTo:
-      - redmine
+      - rocket
 
-
-  - name: redmine
+  - name: rocketchat
     type: docker
-    image: redmine
+    image: rocket.chat
     version: latest
     ports:
       - 3000
     remoteAccess: false
     env:
-      REDMINE_DB_POSTGRES: "{{=service('db').getMasterAlias()}}"
-      REDMINE_DB_USERNAME: "{{=service('db').getEnv('POSTGRES_USER')}}"
-      REDMINE_DB_PASSWORD: "{{=service('db').getEnv('POSTGRES_PASSWORD')}}"
-      REDMINE_SECRET_KEY_BASE: "{{=randomString(32)}}"
+      MONGO_URL: "mongodb://{{=service('mongo').getMasterAlias()}}:{{=service('mongo').getMainPort()}}/rocketchat"
+      ADMIN_NAME: null
+      ADMIN_PASS: null
+    comments:
+      env:
+        ADMIN_NAME: Login for an administrator account
+        ADMIN_PASS: Password for an administrator account
+    volumes:
+      - directory: /app/uploads
     deployTo:
-      - redmine
+      - rocket
 
   - name: web
     type: nginx
@@ -37,12 +38,12 @@ services:
       - 443
     remoteAccess: true
     serviceFiles:
-      - name: redmine
+      - name: rocketchat
     deployTo:
-      - redmine
+      - rocket
 
 hosts:
-  - name: redmine
+  - name: rocket
     requirements:
       cores: 1
       memory: 1
