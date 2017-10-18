@@ -1,0 +1,48 @@
+version: '1.0'
+services:
+  - name: db
+    type: postgres
+    version: 9.6
+    configuration: StandAlone
+    ports:
+      - 5432
+    env:
+      POSTGRES_USER: redmine
+      POSTGRES_PASSWORD: null
+    remoteAccess: false
+    deployTo:
+      - redmine
+
+
+  - name: redmine
+    type: docker
+    image: redmine
+    version: latest
+    ports:
+      - 3000
+    remoteAccess: false
+    env:
+      REDMINE_DB_POSTGRES: "{{=service('db').getMasterAlias()}}"
+      REDMINE_DB_USERNAME: "{{=service('db').getEnv('POSTGRES_USER')}}"
+      REDMINE_DB_PASSWORD: "{{=service('db').getEnv('POSTGRES_PASSWORD')}}"
+      REDMINE_SECRET_KEY_BASE: "{{=randomString(32)}}"
+    deployTo:
+      - redmine
+
+  - name: web
+    type: nginx
+    version: 1.13
+    ports:
+      - 80
+      - 443
+    remoteAccess: true
+    serviceFiles:
+      - name: redmine
+    deployTo:
+      - redmine
+
+hosts:
+  - name: redmine
+    requirements:
+      cores: 1
+      memory: 1
