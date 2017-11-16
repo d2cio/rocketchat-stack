@@ -13,7 +13,7 @@ services:
   - name: rocketchat
     type: docker
     image: rocket.chat
-    version: latest
+    version: 0
     ports:
       - 3000
     remoteAccess: false
