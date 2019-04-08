@@ -2,7 +2,7 @@ version: '1.0'
 services:
   - name: mongo
     type: mongodb
-    version: 3.6
+    version: 4.0
     configuration: StandAlone
     ports:
       - 27017
@@ -33,7 +33,7 @@ services:
 
   - name: web
     type: nginx
-    version: 1.14
+    version: 1.15
     ports:
       - 80
       - 443
